@@ -31,6 +31,4 @@ const token = Buffer.from('d28443a10126a104524173796d6d6574726963454344534132353
 
 CWT.read(token, verifyKey).then(claims => {
   console.log(claims);
-}).catch(error => {
-  console.log(error);
 });
