@@ -1,5 +1,8 @@
 {
-  "key": "403697de87af64611c1d32a05dab0fe1fcb715a86ab435f1ec99192d79569388",
+  "key": {
+    "k": "403697de87af64611c1d32a05dab0fe1fcb715a86ab435f1ec99192d79569388",
+    "kid": "Symmetric256"
+  },
   "claims": {
      "iss": "coap://as.example.com",
      "sub": "erikw",
@@ -10,7 +13,6 @@
      "cti": "0b71"
   },
   "alg": "HS256/64",
-  "kid": "Symmetric256",
   "options": {
     "addTag": true
   },

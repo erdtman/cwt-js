@@ -46,5 +46,8 @@
     "semistandard": "*",
     "jsonfile": "*",
     "watch": "*"
+  },
+  "semistandard": {
+    "ignore": "tmp/**"
   }
 }

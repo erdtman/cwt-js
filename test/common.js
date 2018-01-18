@@ -7,7 +7,7 @@ const CWT = require('../');
 
 test('get and set', t => {
   const claims = {'aud': 'samuel', 'sub': 'charlotte'};
-  const cwt = CWT.create(claims);
+  const cwt = new CWT(claims);
   t.is(cwt.get('aud'), 'samuel');
   t.is(cwt.get('sub'), 'charlotte');
   cwt.set('iss', 'kalle');
