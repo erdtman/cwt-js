@@ -36,9 +36,10 @@ test('create A_4', t => {
 
   const cwt = new CWT(claims);
   return cwt.mac(key, alg, options).then(output => {
-    t.true(Buffer.isBuffer(output));
-    t.true(output.length > 0);
-    t.is(output.toString('hex'), example.output);
+    const data = output.raw;
+    t.true(Buffer.isBuffer(data));
+    t.true(data.length > 0);
+    t.is(data.toString('hex'), example.output);
   });
 });
 
@@ -109,9 +110,10 @@ test('create A_7', t => {
 
   const cwt = new CWT(claims);
   return cwt.mac(key, alg).then(output => {
-    t.true(Buffer.isBuffer(output));
-    t.true(output.length > 0);
-    t.is(output.toString('hex'), example.output);
+    const data = output.raw;
+    t.true(Buffer.isBuffer(data));
+    t.true(data.length > 0);
+    t.is(data.toString('hex'), example.output);
   });
 });
 
