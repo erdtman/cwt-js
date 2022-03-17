@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "clean": "rm -rf coverage/ .nyc_output/",
+    "pretest": "semistandard --fix",
     "test": "ava test",
     "coverage": "nyc npm test",
     "coveragehtml": "nyc report -r html",
@@ -46,7 +47,7 @@
     "live-server": "*",
     "npm-run-all": "*",
     "nyc": "*",
-    "semistandard": "*",
+    "semistandard": "^16.0.1",
     "watch": "*"
   }
 }

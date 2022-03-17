@@ -9,8 +9,8 @@ const jsonfile = require('jsonfile');
 test('create A_3', t => {
   const example = jsonfile.readFileSync('test/rfc/A_3.json');
   const key = {
-    'd': Buffer.from(example.key.d, 'hex'),
-    'kid': example.key.kid
+    d: Buffer.from(example.key.d, 'hex'),
+    kid: example.key.kid
   };
   const alg = example.alg;
   const claims = example.claims;
@@ -27,8 +27,8 @@ test('create A_3', t => {
 test('create A_4', t => {
   const example = jsonfile.readFileSync('test/rfc/A_4.json');
   const key = {
-    'k': Buffer.from(example.key.k, 'hex'),
-    'kid': example.key.kid
+    k: Buffer.from(example.key.k, 'hex'),
+    kid: example.key.kid
   };
   const alg = example.alg;
   const claims = example.claims;
@@ -46,13 +46,13 @@ test('create A_4', t => {
 test('create A_5', t => {
   const example = jsonfile.readFileSync('test/rfc/A_5.json');
   const key = {
-    'k': Buffer.from(example.key.k, 'hex'),
-    'kid': example.key.kid
+    k: Buffer.from(example.key.k, 'hex'),
+    kid: example.key.kid
   };
   const alg = example.alg;
   const claims = example.claims;
   const options = {
-    'randomSource': (bytes) => {
+    randomSource: (bytes) => {
       return Buffer.from(example.iv, 'hex');
     }
   };
@@ -69,19 +69,19 @@ test('create A_5', t => {
 test('create A_6', t => {
   const example = jsonfile.readFileSync('test/rfc/A_6.json');
   const encKey = {
-    'k': Buffer.from(example.encrypt.key.k, 'hex'),
-    'kid': example.encrypt.key.kid
+    k: Buffer.from(example.encrypt.key.k, 'hex'),
+    kid: example.encrypt.key.kid
   };
   const encAlg = example.encrypt.alg;
   const encOptions = {
-    'randomSource': (bytes) => {
+    randomSource: (bytes) => {
       return Buffer.from(example.encrypt.iv, 'hex');
     }
   };
 
   const signKey = {
-    'd': Buffer.from(example.sign.key.d, 'hex'),
-    'kid': example.sign.key.kid
+    d: Buffer.from(example.sign.key.d, 'hex'),
+    kid: example.sign.key.kid
   };
   const signAlg = example.sign.alg;
   const claims = example.sign.claims;
@@ -102,8 +102,8 @@ test('create A_6', t => {
 test('create A_7', t => {
   const example = jsonfile.readFileSync('test/rfc/A_7.json');
   const key = {
-    'k': Buffer.from(example.key.k, 'hex'),
-    'kid': example.key.kid
+    k: Buffer.from(example.key.k, 'hex'),
+    kid: example.key.kid
   };
   const alg = example.alg;
   const claims = example.claims;
@@ -120,9 +120,9 @@ test('create A_7', t => {
 test('verify A_3', t => {
   const example = jsonfile.readFileSync('test/rfc/A_3.json');
   const key = {
-    'x': Buffer.from(example.key.x, 'hex'),
-    'y': Buffer.from(example.key.y, 'hex'),
-    'kid': example.key.kid
+    x: Buffer.from(example.key.x, 'hex'),
+    y: Buffer.from(example.key.y, 'hex'),
+    kid: example.key.kid
   };
   const expectedClaims = example.claims;
   const cwt = Buffer.from(example.output, 'hex');
@@ -134,8 +134,8 @@ test('verify A_3', t => {
 test('verify A_4', t => {
   const example = jsonfile.readFileSync('test/rfc/A_4.json');
   const key = {
-    'k': Buffer.from(example.key.k, 'hex'),
-    'kid': example.key.kid
+    k: Buffer.from(example.key.k, 'hex'),
+    kid: example.key.kid
   };
   const expectedClaims = example.claims;
   const cwt = Buffer.from(example.output, 'hex');
@@ -147,8 +147,8 @@ test('verify A_4', t => {
 test('verify A_5', t => {
   const example = jsonfile.readFileSync('test/rfc/A_5.json');
   const key = {
-    'k': Buffer.from(example.key.k, 'hex'),
-    'kid': example.key.kid
+    k: Buffer.from(example.key.k, 'hex'),
+    kid: example.key.kid
   };
   const expectedClaims = example.claims;
   const cwt = Buffer.from(example.output, 'hex');
@@ -160,14 +160,14 @@ test('verify A_5', t => {
 test('verify A_6', t => {
   const example = jsonfile.readFileSync('test/rfc/A_6.json');
   const encKey = {
-    'k': Buffer.from(example.encrypt.key.k, 'hex'),
-    'kid': example.encrypt.key.kid
+    k: Buffer.from(example.encrypt.key.k, 'hex'),
+    kid: example.encrypt.key.kid
   };
 
   const signKey = {
-    'x': Buffer.from(example.sign.key.x, 'hex'),
-    'y': Buffer.from(example.sign.key.y, 'hex'),
-    'kid': example.sign.key.kid
+    x: Buffer.from(example.sign.key.x, 'hex'),
+    y: Buffer.from(example.sign.key.y, 'hex'),
+    kid: example.sign.key.kid
   };
 
   const expectedClaims = example.sign.claims;
@@ -185,8 +185,8 @@ test('verify A_6', t => {
 test('verify A_7', t => {
   const example = jsonfile.readFileSync('test/rfc/A_7.json');
   const key = {
-    'k': Buffer.from(example.key.k, 'hex'),
-    'kid': example.key.kid
+    k: Buffer.from(example.key.k, 'hex'),
+    kid: example.key.kid
   };
   const expectedClaims = example.claims;
   const cwt = Buffer.from(example.output, 'hex');
