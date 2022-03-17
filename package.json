@@ -18,6 +18,9 @@
     "type": "git",
     "url": "git+https://github.com/erdtman/cwt-js.git"
   },
+  "engines": {
+    "node": ">=15"
+  },
   "keywords": [
     "IoT",
     "security",
