@@ -1,11 +1,10 @@
 {
   "name": "cwt-js",
   "version": "0.3.0",
-  "description": "CWT implementation i javascript",
+  "description": "CWT implementation in javascript",
   "main": "lib/index.js",
   "scripts": {
     "clean": "rm -rf coverage/ .nyc_output/",
-    "pretest": "semistandard",
     "test": "ava test",
     "coverage": "nyc npm test",
     "coveragehtml": "nyc report -r html",
@@ -46,8 +45,5 @@
     "semistandard": "*",
     "jsonfile": "*",
     "watch": "*"
-  },
-  "semistandard": {
-    "ignore": "tmp/**"
   }
 }
