@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 15
+          - 16
 
     runs-on: ubuntu-latest
     steps:
@@ -17,15 +17,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Set up GCC
-        run: |-
-          sudo apt-get install -y musl
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: x86_64-unknown-linux-musl # build static binaries
 
       - name: Install
         # potential optimization

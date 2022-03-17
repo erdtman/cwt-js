@@ -41,12 +41,12 @@
     "nofilter": "0.0.3"
   },
   "devDependencies": {
-    "ava": "*",
+    "ava": "^4.1.0",
+    "jsonfile": "^6.1.0",
     "live-server": "*",
     "npm-run-all": "*",
     "nyc": "*",
     "semistandard": "*",
-    "jsonfile": "*",
     "watch": "*"
   }
 }
