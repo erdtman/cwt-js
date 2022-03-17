@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 8
+          - 15
 
     runs-on: ubuntu-latest
     steps:
