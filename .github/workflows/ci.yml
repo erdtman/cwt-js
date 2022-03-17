@@ -19,14 +19,18 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install
+        # potential optimization
         # uses: bahmutov/npm-install@v1
-        run: npm install
+        run: npm i
 
-      - name: Install Coveralls
-        run: npm install coveralls
+      - name: Test
+        run: npm t
 
-      - name: Coverage
-        run: npm run coverage
+      # - name: Install Coveralls
+      #   run: npm install coveralls
 
-      - name: Coverage Report
-        run: npm run coveralls
+      # - name: Coverage
+      #   run: npm run coverage
+
+      # - name: Coverage Report
+      #   run: npm run coveralls
