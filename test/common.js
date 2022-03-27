@@ -4,7 +4,7 @@
 
 const test = require('ava');
 
-test.skip('get and set', (t) => {
+test('get and set', (t) => {
   const CWT = require('../');
   const claims = { aud: 'samuel', sub: 'charlotte' };
   const cwt = new CWT(claims);
