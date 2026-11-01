@@ -1,19 +1,31 @@
-[![CI](https://github.com/erdtman/cwt-js/actions/workflows/ci.yml/badge.svg)](https://github.com/erdtman/cwt-js/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/erdtman/cwt-js/badge.svg?branch=master)](https://coveralls.io/github/erdtman/cwt-js?branch=master)
-
 # cwt-js
 
-[CWT](https://tools.ietf.org/html/draft-ietf-ace-cbor-web-token) implementation.
+[![CI](https://github.com/erdtman/cwt-js/actions/workflows/ci.yml/badge.svg)](https://github.com/erdtman/cwt-js/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/cwt-js.svg)](https://www.npmjs.com/package/cwt-js)
 
-# install
+A [CBOR Web Token (RFC 8392)](https://www.rfc-editor.org/rfc/rfc8392) implementation.
 
+A CWT is the CBOR counterpart of a JWT: a claims set, keyed by small integer
+labels instead of names, carried inside a [COSE](https://www.rfc-editor.org/rfc/rfc9052)
+structure. It can be signed, MACed or encrypted, and one CWT can be nested
+inside another — signed and then encrypted, so that only the holder of the
+decryption key learns who signed it.
+
+This library creates and verifies all four shapes, and translates between the
+integer labels on the wire and the claim names you write.
+
+## Install
+
+```sh
+npm install cwt-js
 ```
-npm install cwt-js --save
-```
 
-# Usage
+Requires Node.js 22 or later. Node.js 26 does not work yet; see
+[Limitations](#limitations).
 
-# MAC CWT
+## Usage
+
+### MAC a CWT
 
 ```js
 const CWT = require("cwt-js");
@@ -37,12 +49,12 @@ const claims = {
 };
 
 const cwt = new CWT(claims);
-cwt.mac(encKey, alg).then((cwt) => {
+cwt.mac(encKey, alg, { addTag: true }).then((cwt) => {
   console.log(cwt.raw.toString("hex"));
 });
 ```
 
-# Verify MACed CWT
+### Verify a MACed CWT
 
 ```js
 const CWT = require("cwt-js");
@@ -64,7 +76,7 @@ CWT.parse(token, decKey).then((cwt) => {
 });
 ```
 
-# Sign CWT
+### Sign a CWT
 
 ```js
 const CWT = require("cwt-js");
@@ -93,7 +105,7 @@ cwt.sign(signKey, alg).then((cwt) => {
 });
 ```
 
-# Verify Signed CWT
+### Verify a signed CWT
 
 ```js
 const CWT = require("cwt-js");
@@ -120,7 +132,7 @@ CWT.parse(token, verifyKey).then((cwt) => {
 });
 ```
 
-# Encrypt CWT
+### Encrypt a CWT
 
 ```js
 const CWT = require("cwt-js");
@@ -147,7 +159,7 @@ cwt.encrypt(encKey, alg).then((cwt) => {
 });
 ```
 
-# Decrypt CWT
+### Decrypt a CWT
 
 ```js
 const CWT = require("cwt-js");
@@ -166,7 +178,10 @@ CWT.parse(token, decKey).then((cwt) => {
 });
 ```
 
-# Create Nested CWT
+### Create a nested CWT
+
+`encrypt` encrypts the token already in hand rather than the claims, so signing
+and then encrypting produces a nested CWT.
 
 ```js
 const CWT = require("cwt-js");
@@ -207,7 +222,10 @@ cwt
   });
 ```
 
-# Verify Nested CWT
+### Verify a nested CWT
+
+`parse` removes the outer layer. While an inner layer is still wrapped `done`
+is false; `continue` unwraps the next one with the next key.
 
 ```js
 const CWT = require("cwt-js");
@@ -235,11 +253,84 @@ const token = Buffer.from(
 );
 CWT.parse(token, decKey)
   .then((cwt) => {
-    console.log("done: " + cwt.done);
+    console.log(`done: ${cwt.done}`);
     return cwt.continue(verifyKey);
   })
   .then((cwt) => {
-    console.log("done: " + cwt.done);
+    console.log(`done: ${cwt.done}`);
     console.log(cwt.claims);
   });
 ```
+
+## API
+
+The module exports the `CWT` class itself.
+
+| Member | What it does |
+| --- | --- |
+| `new CWT(claims)` | A token from a claims set. Registered names are translated to their labels. |
+| `CWT.parse(token, key)` | Verify or decrypt a token and read its claims. The token's COSE tag selects the operation. Rejects if it does not verify. |
+| `CWT.CwtTag` | `61`, the CBOR tag that marks a byte string as a CWT. |
+| `cwt.mac(key, alg, options?)` | MAC the claims, producing a COSE_Mac0. Resolves with the token. |
+| `cwt.sign(key, alg, options?)` | Sign the claims, producing a COSE_Sign1. Resolves with the token. |
+| `cwt.encrypt(key, alg, options?)` | Encrypt the token already held, or the claims if there is none, producing a COSE_Encrypt0. |
+| `cwt.continue(key)` | Unwrap the next layer of a nested token. |
+| `cwt.claims` | The claims, with registered labels translated back to names. |
+| `cwt.raw` | The encoded token, once one of `mac`, `sign` or `encrypt` has run. |
+| `cwt.done` | False while an inner layer is still wrapped, which is when `continue` has something to do. |
+| `cwt.get(claim)`, `cwt.set(claim, value)` | One claim, by registered name or by label. |
+| `cwt.reset()` | Forget the encoded token, keeping the claims. |
+
+`options` takes `addTag`, which wraps the result in the CWT CBOR tag.
+`encrypt` also takes `randomSource`, which exists to reproduce a published test
+vector; leave it unset and the COSE layer uses a secure random source.
+
+A key is a plain object: `{ k, kid }` to MAC or encrypt, `{ d, kid }` to sign,
+`{ x, y, kid }` to verify a signature. Key material is a `Buffer`, and `kid` is
+optional.
+
+TypeScript declarations are bundled, so no `@types` package is needed.
+
+### Claims
+
+The seven claims registered by RFC 8392 section 4 are translated between their
+names and their integer labels:
+
+| Name | Label | Type |
+| --- | --- | --- |
+| `iss` | 1 | string |
+| `sub` | 2 | string |
+| `aud` | 3 | string |
+| `exp` | 4 | seconds since the epoch |
+| `nbf` | 5 | seconds since the epoch |
+| `iat` | 6 | seconds since the epoch |
+| `cti` | 7 | hex string, a byte string on the wire |
+
+Any other name or label is carried through unchanged, so a claim this library
+has never heard of still works.
+
+### Limitations
+
+- A claims set is encoded and decoded, not checked: `exp` and `nbf` are carried
+  faithfully and are not compared against the clock. Verifying a token tells
+  you it is authentic, not that it is currently valid.
+- `parse` expects a tagged token. An untagged COSE structure is decoded but not
+  recognised, so tag the token, with `addTag` or with the COSE tag the
+  structure already carries in every example above.
+- **Node.js 26 does not work.** `cbor` assembles its output through
+  `nofilter`, whose synchronous `read()` returns only the first buffered chunk
+  on Node.js 26, so `cbor.encode()` emits a container header with no contents
+  and every token comes out as truncated CBOR. `cbor` 8 and `cbor` 10 are both
+  affected, so neither this package nor `cose-js` can declare its way around
+  it: it needs a fix upstream in `nofilter`. Node.js 22 and 24 are unaffected
+  and are what CI runs, and the test suite fails with that explanation rather
+  than silently if it is run on Node.js 26.
+
+## Development
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the test suite and
+[RELEASING.md](RELEASING.md) for how a version is published.
+
+## License
+
+MIT
