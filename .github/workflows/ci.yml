@@ -1,36 +1,51 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        node-version:
-          - 16
-
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Node.js 26 is deliberately absent. cbor assembles its output through
+        # `nofilter`, whose synchronous read() returns only the first buffered
+        # chunk there, so cbor.encode() emits a container header with no
+        # contents and every token comes out as truncated CBOR. cbor 8 and
+        # cbor 10 are both affected, so neither this package nor cose-js can
+        # declare its way out of it; it needs a fix upstream in nofilter.
+        # test/runtime.js fails with that explanation if the suite is run on
+        # such a runtime anyway.
+        node-version: ['22', '24']
+    name: Node ${{ matrix.node-version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run lint:types
+      # Runs the whole suite, so there is no separate `npm test` step.
+      - run: npm run coverage:check
 
-      - name: Install
-        # potential optimization
-        # uses: bahmutov/npm-install@v1
-        run: npm i
-
-      - name: Test
-        run: npm t
-
-      # - name: Install Coveralls
-      #   run: npm install coveralls
-
-      # - name: Coverage
-      #   run: npm run coverage
-
-      # - name: Coverage Report
-      #   run: npm run coveralls
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      # This package has two runtime dependencies and they pull in a crypto
+      # stack, so an advisory against any of them is this package's problem.
+      - run: npm audit --audit-level=moderate
