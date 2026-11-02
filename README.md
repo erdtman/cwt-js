@@ -325,6 +325,12 @@ has never heard of still works.
   it: it needs a fix upstream in `nofilter`. Node.js 22 and 24 are unaffected
   and are what CI runs, and the test suite fails with that explanation rather
   than silently if it is run on Node.js 26.
+- Signing and verifying go through `elliptic`, by way of `cose-js`, which
+  carries a low-severity advisory for its use of a risky cryptographic
+  primitive ([GHSA-848j-6mx2-7j84](https://github.com/advisories/GHSA-848j-6mx2-7j84)).
+  There is no fixed release to move to. It is listed here because it is a
+  runtime dependency of this package and so it is worth knowing about rather
+  than discovering from `npm audit`.
 
 ## Development
 

@@ -75,7 +75,31 @@ install tree holds one copy of it: `Tagged` instances are compared with
 `instanceof`, and two copies of `cbor` would mean two unrelated `Tagged`
 classes. When `cose-js` moves to a new `cbor` major, this package follows.
 
+### The lockfile and your registry
+
+`package-lock.json` records a `resolved` URL for every package, and npm writes
+whichever registry the install used. If your shell sets `NPM_CONFIG_REGISTRY`
+to a company mirror, that wins over the `registry=` line in `.npmrc` —
+environment configuration outranks project configuration — and the lockfile
+comes out pointing at a host nobody outside that network can reach, which
+breaks CI and leaks an internal URL into a public repository.
+
+So after any install that changes the lockfile, check it:
+
+```sh
+grep -c 'registry.npmjs.org' package-lock.json   # every resolved URL
+grep 'resolved' package-lock.json | grep -v 'registry.npmjs.org'   # should print nothing
+```
+
+The integrity hashes are content-addressed, so a `resolved` URL can be
+rewritten to `https://registry.npmjs.org/` without invalidating anything.
+
+### Advisories
+
 Every push runs the suite on each Node.js version `engines` allows, under the
-coverage thresholds, and audits the dependency tree. See
+coverage thresholds, and audits the dependency tree. The audit gate is
+`--omit=dev`: an advisory in a development tool cannot reach anyone who
+installs this package. Run `npm audit` without the flag locally to see those
+too. See
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml). The release process is
 in [RELEASING.md](RELEASING.md).

@@ -48,4 +48,8 @@ jobs:
       - run: npm ci
       # This package has two runtime dependencies and they pull in a crypto
       # stack, so an advisory against any of them is this package's problem.
-      - run: npm audit --audit-level=moderate
+      # The gate is --omit=dev on purpose: an advisory in eslint or tsc cannot
+      # reach anyone who installs this package, and a lint-time glob that can
+      # be made slow is not a reason to hold up a release. Dev advisories are
+      # still worth reading, so run `npm audit` locally without the flag.
+      - run: npm audit --omit=dev --audit-level=moderate
