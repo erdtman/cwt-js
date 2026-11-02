@@ -30,6 +30,8 @@ else here is packaging, tests and tooling.
 - CI runs on Node.js 22 and 24, with linting, type-checking and a 100%
   coverage gate, plus an `npm audit` job. The two runtime dependencies pull in
   a crypto stack, so an advisory against any of them is this package's problem.
+  The gate is scoped to production dependencies: an advisory in eslint or tsc
+  cannot reach anyone who installs this package.
 - A test that this package does not work on Node.js 26, and why. `cbor`
   assembles its output through `nofilter`, whose synchronous `read()` returns
   only the first buffered chunk there, so `cbor.encode()` emits a container
@@ -50,8 +52,14 @@ else here is packaging, tests and tooling.
 - `engines` now says Node.js >=22, the oldest release still supported
   upstream. It previously said >=15, and CI tested only Node.js 16.
 - `cose-js` moves to ^0.9.0.
+- The library uses `async`/`await` internally instead of `.then()` chains.
+  The public API is unchanged — every method still returns a promise — but
+  55 lines of plumbing go away, and the three COSE tag handlers now share one
+  function instead of holding a copy each. That duplication is what hid the
+  lost inner token above: two copies kept the verified payload and the third
+  did not, which `const raw = await …` cannot express.
 - The README is rewritten: an API table, the registered claims and their
-  labels, the two limitations worth knowing about, and a fixed npm badge in
+  labels, the limitations worth knowing about, and a fixed npm badge in
   place of a coverage badge for a service this repository no longer uses.
 
 ### Fixed
