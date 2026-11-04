@@ -5,7 +5,7 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] - 2026-11-04
 
 The library's behaviour is unchanged except where noted under Fixed. Everything
 else here is packaging, tests and tooling.
@@ -119,9 +119,12 @@ else here is packaging, tests and tooling.
   outside the repository, and that it type-checks for a TypeScript consumer
   resolving it by name.
 
-## [0.3.0] and earlier
+## [0.4.0] and earlier
 
 See the [commit history](https://github.com/erdtman/cwt-js/commits/master).
+These versions were published before this repository tagged its releases, so
+there is nothing to compare them against here. The 0.4.0 tarball on npm was
+published in January 2018 from a commit that never reached this repository;
+0.3.0 is the last release whose source is in the history above.
 
-[Unreleased]: https://github.com/erdtman/cwt-js/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/erdtman/cwt-js/releases/tag/v0.3.0
+[0.5.0]: https://github.com/erdtman/cwt-js/releases/tag/v0.5.0
