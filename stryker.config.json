@@ -1,0 +1,20 @@
+{
+  "testRunner": "command",
+  "commandRunner": {
+    "command": "node --test test/claims.js test/rfc.js test/options.js test/parse.js test/exports.js test/esm.mjs"
+  },
+  "mutate": [
+    "lib/index.js"
+  ],
+  "coverageAnalysis": "off",
+  "reporters": [
+    "clear-text",
+    "progress"
+  ],
+  "thresholds": {
+    "high": 100,
+    "low": 90,
+    "break": null
+  },
+  "tempDirName": ".stryker-tmp"
+}

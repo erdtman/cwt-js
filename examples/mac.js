@@ -1,10 +1,9 @@
-/* jshint esversion: 6 */
-/* jslint node: true */
 'use strict';
 
 const CWT = require('../');
 
-// Create
+// Create. addTag wraps the COSE_Mac0 in the CWT CBOR tag, which is the form
+// RFC 8392 appendix A.4 publishes.
 const encKey = {
   k: Buffer.from('403697de87af64611c1d32a05dab0fe1fcb715a86ab435f1ec99192d79569388', 'hex'),
   kid: 'Symmetric256'
@@ -21,7 +20,7 @@ const claims = {
 };
 
 const cwt = new CWT(claims);
-cwt.mac(encKey, alg).then(cwt => {
+cwt.mac(encKey, alg, { addTag: true }).then(cwt => {
   console.log(cwt.raw.toString('hex'));
 });
 
