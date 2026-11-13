@@ -186,3 +186,35 @@ describe('a token built from encoded bytes', () => {
     assert.throws(() => cwt.claims, TypeError);
   });
 });
+
+describe('a claims set with no registered claim', () => {
+  const example = vector('A_4');
+
+  /**
+   * cbor reaches for a Map only once a key is not a string, so a claims set
+   * that is all privately named decodes to a plain object instead. Reading
+   * only the Map shape made such a token unparseable, and no appendix A vector
+   * shows it up: every published example carries a registered claim.
+   */
+  it('round trips claims that are all privately named', async () => {
+    const key = symmetricKey(example.key);
+    const claims = { foo: 'bar', baz: 'qux' };
+
+    const cwt = await new CWT(claims).mac(key, example.alg);
+    const parsed = await CWT.parse(cwt.raw, key);
+
+    const actual = parsed.claims;
+    const expected = claims;
+    assert.deepEqual(actual, expected);
+  });
+
+  it('encodes such a claim under its own name', async () => {
+    const cwt = await new CWT({ foo: 'bar' }).mac(symmetricKey(example.key), example.alg);
+
+    // RFC 8949 section 3: a one-pair map (0xa1) of two three-byte text
+    // strings (0x63), so the claim travels as "foo" and not as a label.
+    const payload = 'a163666f6f63626172';
+    const actual = cwt.raw.toString('hex');
+    assert.ok(actual.includes(payload), `${actual} does not carry the claims map ${payload}`);
+  });
+});
