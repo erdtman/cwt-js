@@ -5,6 +5,42 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `parse` rejects a token that carries no COSE layer. The key is only ever
+  reached by a tag handler, so input with no COSE tag reached none of them and
+  nothing verified anything: a bare CBOR map of claims came back as a token
+  with `done` true, under any key. `cbor.encode({ iss: 'whoever' })` was
+  accepted as a CWT. The decoded value now has to be the layer a tag handler
+  produced, which is the only evidence `parse` has that a key was used at all,
+  and a scalar, an array and a claims map wrapped in the CWT tag alone are
+  refused with it. Tag 61 says what bytes are, not that they are authentic, so
+  its handler cannot stand in for a COSE layer.
+- `parse` reads a token whose claims are all privately named. A claims set
+  decodes to a `Map`, or to a plain object once every key is a string, and only
+  the `Map` shape was read: a token with no registered claim in it threw
+  `TypeError: claims.forEach is not a function`. Both shapes are now read, and
+  a layer holding something that is not a claims set at all — an array, a byte
+  string, a scalar — is refused rather than walked into claims numbered 0, 1,
+  2. None of this showed up against the appendix A vectors, because every
+  published example carries a registered claim.
+- `parse` rejects a missing key instead of inventing claims. Reading `k` off
+  an absent key throws synchronously inside a tag handler, and `cbor` answers a
+  handler that throws with a `Tagged` carrying the error rather than a failed
+  decode, so `CWT.parse(token)` resolved with the tag, the layer and the error
+  message as the claims of a token it had never verified. An async rejection,
+  which is what a wrong key produces, was always propagated correctly.
+
+### Tests
+
+- 12 tests for the above: input with no COSE layer in four shapes, the key
+  argument missing, null and not an object, a verified layer holding an array,
+  a byte string or a scalar, and a round trip of claims that are all privately
+  named, whose encoded claims map is checked against the bytes RFC 8949
+  prescribes for it. Still 100% of lines, branches and functions in `lib/`.
+
 ## [0.5.0] - 2026-11-04
 
 The library's behaviour is unchanged except where noted under Fixed. Everything
@@ -127,4 +163,5 @@ there is nothing to compare them against here. The 0.4.0 tarball on npm was
 published in January 2018 from a commit that never reached this repository;
 0.3.0 is the last release whose source is in the history above.
 
+[Unreleased]: https://github.com/erdtman/cwt-js/compare/v0.5.0...HEAD
 [0.5.0]: https://github.com/erdtman/cwt-js/releases/tag/v0.5.0
