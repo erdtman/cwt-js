@@ -5,7 +5,7 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.0] - 2026-11-18
 
 ### Fixed
 
@@ -163,5 +163,5 @@ there is nothing to compare them against here. The 0.4.0 tarball on npm was
 published in January 2018 from a commit that never reached this repository;
 0.3.0 is the last release whose source is in the history above.
 
-[Unreleased]: https://github.com/erdtman/cwt-js/compare/v0.5.0...HEAD
+[0.6.0]: https://github.com/erdtman/cwt-js/releases/tag/v0.6.0
 [0.5.0]: https://github.com/erdtman/cwt-js/releases/tag/v0.5.0
