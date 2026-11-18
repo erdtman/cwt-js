@@ -314,9 +314,11 @@ has never heard of still works.
 - A claims set is encoded and decoded, not checked: `exp` and `nbf` are carried
   faithfully and are not compared against the clock. Verifying a token tells
   you it is authentic, not that it is currently valid.
-- `parse` expects a tagged token. An untagged COSE structure is decoded but not
-  recognised, so tag the token, with `addTag` or with the COSE tag the
-  structure already carries in every example above.
+- `parse` expects a tagged token, and rejects anything else. The COSE tag is
+  what selects the verification to perform, so an untagged COSE structure —
+  which RFC 8392 section 6 permits where the type is known from the context —
+  is refused rather than guessed at. Tag the token, with `addTag` or with the
+  COSE tag the structure already carries in every example above.
 - **Node.js 26 does not work.** `cbor` assembles its output through
   `nofilter`, whose synchronous `read()` returns only the first buffered chunk
   on Node.js 26, so `cbor.encode()` emits a container header with no contents

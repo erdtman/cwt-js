@@ -173,3 +173,96 @@ describe('a nested token', () => {
     assert.deepEqual(actual, expected);
   });
 });
+
+describe('input with no COSE layer', () => {
+  const key = symmetricKey(vector('A_4').key);
+
+  /**
+   * The key is only ever reached by a tag handler, so input carrying no COSE
+   * tag reaches none of them and nothing verifies anything.
+   *
+   * Claims in a bare CBOR map used to come back as a token with done true:
+   * cbor.encode(claims), with no signature, MAC or ciphertext anywhere in it,
+   * was accepted under any key. The decoded value now has to be the layer a
+   * handler produced, which is the only evidence parse has that a key was used.
+   */
+  it('rejects a bare map of labelled claims', async () => {
+    const forged = cbor.encode(new Map([[1, 'coap://as.example.com'], [2, 'erikw']]));
+
+    await assert.rejects(() => CWT.parse(forged, key), { message: /^Not a CWT/ });
+  });
+
+  it('rejects a bare map of named claims', async () => {
+    // All-string keys decode to a plain object, which is the shape the
+    // constructor takes for a caller's own claims set: this was the case that
+    // handed the forged claims straight back.
+    const forged = cbor.encode({ iss: 'coap://as.example.com', sub: 'erikw' });
+
+    await assert.rejects(() => CWT.parse(forged, key), { message: /^Not a CWT/ });
+  });
+
+  it('rejects claims wrapped in the CWT tag alone', async () => {
+    // Tag 61 says what the bytes are, not that they are authentic, so the
+    // handler for it cannot stand in for a COSE layer.
+    const forged = cbor.encode(new cbor.Tagged(CWT.CwtTag, new Map([[2, 'erikw']])));
+
+    await assert.rejects(() => CWT.parse(forged, key), { message: /^Not a CWT/ });
+  });
+
+  it('rejects CBOR that is not a map at all', async () => {
+    await assert.rejects(() => CWT.parse(cbor.encode(42), key), { message: /^Not a CWT/ });
+  });
+});
+
+describe('the key argument', () => {
+  const token = Buffer.from(vector('A_4').output, 'hex');
+
+  /**
+   * A handler that throws synchronously, which is what reading k off a missing
+   * key does, is answered by cbor with a Tagged carrying the error rather than
+   * a failed decode. parse used to resolve with the tag, the layer and the
+   * error message as the claims of a token it had never verified.
+   */
+  for (const [description, key] of [
+    ['missing', undefined],
+    ['null', null],
+    ['not an object', 'Symmetric256']
+  ]) {
+    it(`rejects a key that is ${description}`, async () => {
+      await assert.rejects(() => CWT.parse(token, key), {
+        name: 'TypeError',
+        message: 'A key is required to parse a token'
+      });
+    });
+  }
+});
+
+describe('a verified layer that is not a claims set', () => {
+  const key = symmetricKey(vector('A_4').key);
+  const maced = payload => cose.mac.create(
+    { p: { alg: 'HS256' }, u: { kid: key.kid } },
+    payload,
+    { key: key.k }
+  );
+
+  /**
+   * These are authentic layers whose contents are not claims. An array and a
+   * byte string each have a forEach, and a Buffer has indices, so they used to
+   * be walked into claims numbered 0, 1, 2 rather than refused. A byte string
+   * is not the nested case either: a nested token decodes to a tag.
+   */
+  for (const [description, payload] of [
+    ['an array', [1, 2, 3]],
+    ['a byte string', Buffer.from('0b71', 'hex')],
+    ['a scalar', 42]
+  ]) {
+    it(`rejects a layer holding ${description}`, async () => {
+      const token = await maced(cbor.encode(payload));
+
+      await assert.rejects(() => CWT.parse(token, key), {
+        name: 'TypeError',
+        message: 'Claims are not a CBOR map'
+      });
+    });
+  }
+});
